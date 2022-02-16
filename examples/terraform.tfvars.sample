@@ -16,6 +16,7 @@ address_space = "10.2.0.0/16"
 use_external_vnet = false
 external_vnet_resource_group = ""
 external_vnet_name = ""
+external_vnet_subnet_name = "default"
 
 # Identity
 managed_identity = "true"
