@@ -1,0 +1,456 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.1",
+  "parameters": {
+    "agentCount": {
+      "type": "int",
+      "defaultValue": 3,
+      "minValue": 1,
+      "maxValue": 50,
+      "metadata": {
+        "description": "The number of nodes for the cluster."
+      }
+    },
+    "agentVMSize": {
+      "type": "string",
+      "defaultValue": "Standard_DS2_v2",
+      "metadata": {
+        "description": "The size of the Virtual Machine."
+      }
+    },
+    "aksDockerBridgeCidr": {
+      "type": "string",
+      "defaultValue": "172.17.0.1/16"
+    },
+    "aksDnsServiceIP": {
+      "type": "string",
+      "defaultValue": "10.0.0.10"
+    },
+    "aksNetworkPlugin": {
+      "type": "string",
+      "allowedValues": [
+        "azure",
+        "kubenet"
+      ],
+      "defaultValue": "azure",
+      "metadata": {
+        "description": "Network plugin used for building Kubernetes network."
+      }
+    },
+    "aksServiceCidr": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/16"
+    },
+    "authorizedIPRanges": {
+      "type": "array",
+      "defaultValue": [
+        "38.140.165.50/32"
+      ],
+      "metadata": {
+        "description": "Boolean flag to turn on and off http application routing."
+      }
+    },
+    "componentName": {
+      "type": "string",
+      "defaultValue": "p1"
+    },
+    "dnsPrefix": {
+      "type": "string",
+      "defaultValue": "p1",
+      "metadata": {
+        "description": "Optional DNS prefix to use with hosted Kubernetes API server FQDN."
+      }
+    },
+    "environmentName": {
+      "type": "string",
+      "defaultValue": "10dev"
+    },
+    "keyId": {
+      "type": "string",
+      "defaultValue": "keyIdDefaultValue"
+    },
+    "keyName": {
+      "type": "string",
+      "defaultValue": "keyNameDefaultValue"
+    },
+    "keyVersion": {
+      "type": "string",
+      "defaultValue": "keyVersionDefaultValue"
+    },
+    "linuxAdminUsername": {
+      "type": "string",
+      "defaultValue": "p1admin",
+      "metadata": {
+        "description": "User name for the Linux Virtual Machines."
+      }
+    },
+    "osDiskSizeGB": {
+      "type": "int",
+      "defaultValue": 0,
+      "minValue": 0,
+      "maxValue": 1023,
+      "metadata": {
+        "description": "Disk size (in GB) to provision for each of the agent pool nodes. This value ranges from 0 to 1023. Specifying 0 will apply the default disk size for that agentVMSize."
+      }
+    },
+    "pgAdministratorLogin": {
+      "type": "string",
+      "defaultValue": "pgadmin"
+    },
+    "pgAdministratorLoginPassword": {
+      "type": "securestring"
+    },
+    "pgBackupRetentionDays": {
+      "type": "int",
+      "defaultValue": 7
+    },
+    "pgGeoRedundantBackup": {
+      "type": "string",
+      "defaultValue": "Disabled"
+    },
+    "pgInfrastructureEncryption": {
+      "type": "string",
+      "defaultValue": "Disabled"
+    },
+    "pgSkuCapacity": {
+      "type": "int",
+      "defaultValue": 4
+    },
+    "pgSkuFamily": {
+      "type": "string",
+      "defaultValue": "Gen5"
+    },
+    "pgSkuName": {
+      "type": "string",
+      "defaultValue": "GP_Gen5_4"
+    },
+    "pgSkuSizeMB": {
+      "type": "int",
+      "defaultValue": 102400
+    },
+    "pgSkuTier": {
+      "type": "string",
+      "defaultValue": "GeneralPurpose"
+    },
+    "pgStorageAutoGrow": {
+      "type": "string",
+      "defaultValue": "Enabled"
+    },
+    "pgVersion": {
+      "type": "string",
+      "defaultValue": "10"
+    },
+    "platformName": {
+      "type": "string",
+      "defaultValue": "gates"
+    },
+    "prefixForAKS": {
+      "type": "string",
+      "defaultValue": "aks"
+    },
+    "prefixForDiskEncryptionSet": {
+      "type": "string",
+      "defaultValue": "dek"
+    },
+    "prefixForPostGreSQL": {
+      "type": "string",
+      "defaultValue": "pg"
+    },
+    "prefixForVNet": {
+      "type": "string",
+      "defaultValue": "vnet"
+    },
+    "separator": {
+      "type": "string",
+      "defaultValue": "-"
+    },
+    "sshKey": {
+      "type": "string",
+      "metadata": {
+        "description": "SSH key to access AKS Nodes"
+      }
+    },
+    "vaultName": {
+      "type": "string",
+      "defaultValue": "vaultNameDefaultValue"
+    },
+    "vnetSubnetName": {
+      "type": "string",
+      "defaultValue": "AKS"
+    }
+  },
+  "variables": {
+    "agentPoolProfiles": {
+      "vnetSubnetId": "[concat(resourceId(resourceGroup().name, 'Microsoft.Network/virtualNetworks', variables('virtualNetworkName')), '/subnets/', parameters('vnetSubnetName'))]"
+    },
+    "aksClusterName": "[concat(parameters('prefixForAKS'), parameters('separator'), variables('infixCommon'))]",
+    "diskEncryptionSetName": "[concat(parameters('prefixForDiskEncryptionSet'), parameters('separator'), variables('infixCommon'))]",
+    "infixCommon": "[concat(parameters('platformName'), parameters('separator'), parameters('componentName'), parameters('separator'), parameters('environmentName'), parameters('separator'), resourceGroup().location)]",
+    "pgServerName": "[concat(parameters('prefixForPostGreSQL'), parameters('separator'), variables('infixCommon'))]",
+    "registryName": "[concat(parameters('componentName'),'registry', parameters('environmentName'))]",
+    "storageAccountName": "[concat('sa', parameters('platformName'), parameters('componentName'), parameters('environmentName'))]",
+    "vaultPolicyName": "[concat(parameters('vaultName'), '/add')]",
+    "virtualNetworkName": "[concat(parameters('prefixForVNet'), parameters('separator'), variables('infixCommon'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Compute/diskEncryptionSets",
+      "name": "[variables('diskEncryptionSetName')]",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [],
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "activeKey": {
+          "sourceVault": {
+            "id": "[resourceId('Microsoft.KeyVault/vaults', parameters('vaultName'))]"
+          },
+          "keyUrl": "[parameters('keyId')]"
+        },
+        "encryptionType": "EncryptionAtRestWithCustomerKey"
+      },
+      "tags": {}
+    },
+    {
+      "type": "Microsoft.ContainerRegistry/registries",
+      "name": "[variables('registryName')]",
+      "apiVersion": "2019-05-01",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Standard",
+        "tier": "Standard"
+      },
+      "properties": {
+        "adminUserEnabled": true
+      },
+      "dependsOn": [],
+      "tags": {}
+    },
+    {
+      "type": "Microsoft.ContainerService/managedClusters",
+      "name": "[variables('aksClusterName')]",
+      "apiVersion": "2020-12-01",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId(resourceGroup().name,'Microsoft.KeyVault/vaults/accessPolicies', parameters('vaultName'), 'add')]"
+      ],
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "dnsPrefix": "[parameters('dnsPrefix')]",
+        "enableRBAC": true,
+        "agentPoolProfiles": [
+          {
+            "name": "agentpool",
+            "osDiskSizeGB": "[parameters('osDiskSizeGB')]",
+            "count": "[parameters('agentCount')]",
+            "vmSize": "[parameters('agentVMSize')]",
+            "osType": "Linux",
+            "storageProfile": "ManagedDisks",
+            "type": "VirtualMachineScaleSets",
+            "mode": "System",
+            "maxPods": 110,
+            "availabilityZones": null,
+            "vnetSubnetID": "[variables('agentPoolProfiles').vnetSubnetId]"
+          }
+        ],
+        "networkProfile": {
+          "loadBalancerSku": "standard",
+          "networkPlugin": "[parameters('aksNetworkPlugin')]",
+          "serviceCidr": "[parameters('aksServiceCidr')]",
+          "dnsServiceIP": "[parameters('aksDnsServiceIP')]",
+          "dockerBridgeCidr": "[parameters('aksDockerBridgeCidr')]"
+        },
+        "diskEncryptionSetID": "[resourceId('Microsoft.Compute/diskEncryptionSets', variables('diskEncryptionSetName'))]",
+        "apiServerAccessProfile": {
+          "authorizedIPRanges": "[parameters('authorizedIPRanges')]"
+        },
+        "linuxProfile": {
+          "adminUsername": "[parameters('linuxAdminUsername')]",
+          "ssh": {
+            "publicKeys": [
+              {
+                "keyData": "[parameters('sshKey')]"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.DBforPostgreSQL/servers",
+      "name": "[variables('pgServerName')]",
+      "apiVersion": "2017-12-01",
+      "kind": "",
+      "location": "[resourceGroup().location]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "version": "[parameters('pgVersion')]",
+        "administratorLogin": "[parameters('pgAdministratorLogin')]",
+        "administratorLoginPassword": "[parameters('pgAdministratorLoginPassword')]",
+        "storageProfile": {
+          "storageMB": "[parameters('pgSkuSizeMB')]",
+          "backupRetentionDays": "[parameters('pgBackupRetentionDays')]",
+          "geoRedundantBackup": "[parameters('pgGeoRedundantBackup')]",
+          "storageAutoGrow": "[parameters('pgStorageAutoGrow')]"
+        },
+        "infrastructureEncryption": "[parameters('pgInfrastructureEncryption')]"
+      },
+      "sku": {
+        "name": "[parameters('pgSkuName')]",
+        "tier": "[parameters('pgSkuTier')]",
+        "capacity": "[parameters('pgSkuCapacity')]",
+        "size": "[parameters('pgSkuSizeMB')]",
+        "family": "[parameters('pgSkuFamily')]"
+      },
+      "tags": {}
+    },
+    {
+      "type": "Microsoft.DBforPostgreSQL/servers/keys",
+      "name": "[concat(variables('pgServerName'), '/', parameters('vaultName'), '_', parameters('keyName'), '_', parameters('keyVersion'))]",
+      "apiVersion": "2020-01-01",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId(resourceGroup().name,'Microsoft.KeyVault/vaults/accessPolicies', parameters('vaultName'), 'add')]",
+        "[resourceId('Microsoft.DBforPostgreSQL/servers', variables('pgServerName'))]",
+        "[resourceId('Microsoft.ContainerService/managedClusters', variables('aksClusterName'))]"
+      ],
+      "properties": {
+        "serverKeyType": "AzureKeyVault",
+        "uri": "[parameters('keyId')]"
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/accessPolicies",
+      "name": "[variables('vaultPolicyName')]",
+      "apiVersion": "2019-09-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.DBforPostgreSQL/servers', variables('pgServerName'))]",
+        "[resourceId('Microsoft.Compute/diskEncryptionSets', variables('diskEncryptionSetName'))]"
+      ],
+      "properties": {
+        "accessPolicies": [
+          {
+            "tenantId": "[subscription().tenantId]",
+            "objectId": "[reference(resourceId('Microsoft.Compute/diskEncryptionSets', variables('diskEncryptionSetName')), '2020-05-01', 'full').identity.principalId]",
+            "permissions": {
+              "keys": [
+                "Get",
+                "UnwrapKey",
+                "WrapKey"
+              ]
+            }
+          },
+          {
+            "tenantId": "[subscription().tenantId]",
+            "objectId": "[reference(resourceId('Microsoft.DBforPostgreSQL/servers', variables('pgServerName')), '2017-12-01', 'full').identity.principalId]",
+            "permissions": {
+              "keys": [
+                "Get",
+                "UnwrapKey",
+                "WrapKey"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/VirtualNetworks",
+      "name": "[variables('virtualNetworkName')]",
+      "apiVersion": "2019-09-01",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [],
+      "tags": {},
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "172.16.128.0/18"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[parameters('vnetSubnetName')]",
+            "properties": {
+              "addressPrefix": "172.16.128.0/18",
+              "serviceEndpoints": [
+                {
+                  "service": "Microsoft.KeyVault"
+                },
+                {
+                  "service": "Microsoft.Storage"
+                },
+                {
+                  "service": "Microsoft.ContainerRegistry"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "name": "ClusterSubnetRoleAssignmentDeployment",
+      "apiVersion": "2017-05-10",
+      "resourceGroup": "[resourceGroup().name]",
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {},
+          "variables": {},
+          "resources": [
+            {
+              "type": "Microsoft.Network/virtualNetworks/subnets/providers/roleAssignments",
+              "apiVersion": "2017-05-01",
+              "name": "[concat(variables('virtualNetworkName'), '/', parameters('vnetSubnetName'), '/Microsoft.Authorization/', guid(resourceGroup().id, variables('aksClusterName'), 'Network Contributor'))]",
+              "properties": {
+                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '4d97b98b-1d4f-4787-a291-c67834d212e7')]",
+                "principalId": "[reference(variables('aksClusterName')).identityProfile.kubeletidentity.objectId]",
+                "scope": "[variables('agentPoolProfiles').vnetSubnetId]"
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": []
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[variables('storageAccountName')]",
+      "apiVersion": "2019-06-01",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "accessTier": "Hot",
+        "minimumTlsVersion": "TLS1_2",
+        "supportsHttpsTrafficOnly": true,
+        "allowBlobPublicAccess": true,
+        "allowSharedKeyAccess": true,
+        "networkAcls": {
+          "bypass": "AzureServices",
+          "defaultAction": "Allow",
+          "ipRules": []
+        }
+      },
+      "dependsOn": [],
+      "sku": {
+        "name": "Standard_RAGRS"
+      },
+      "kind": "StorageV2",
+      "tags": {}
+    }
+  ],
+  "outputs": {
+    "controlPlaneFQDN": {
+      "type": "string",
+      "value": "[reference(concat('Microsoft.ContainerService/managedClusters/', variables('aksClusterName'))).fqdn]"
+    }
+  }
+}

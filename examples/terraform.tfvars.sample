@@ -1,0 +1,23 @@
+# General Azure settings
+cluster_name = "{CLUSTER_NAME}"
+resource_group_name = "{RESOURCE_GROUP_NAME}"
+location = "usgovvirginia"
+
+# AKS cluster sizing
+enable_auto_scaling = true
+node_count = 2
+vm_size = "Standard_D8_v3"
+kubernetes_version = "1.20.9"
+private_cluster_enabled = false
+
+# Networking
+subnet_cidr = "10.2.32.0/21"
+address_space = "10.2.0.0/16"
+use_external_vnet = false
+external_vnet_resource_group = ""
+external_vnet_name = ""
+
+# Identity
+managed_identity = "true"
+# Object ID of Azure AD group for admin cluster access
+aad_group_ids = ["{AZUREAD_GROUP_IDS}"]

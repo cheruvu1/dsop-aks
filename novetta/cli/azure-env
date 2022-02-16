@@ -1,0 +1,194 @@
+#e.g. gates
+export PLATFORM_NAME=gates
+echo PLATFORM_NAME=${PLATFORM_NAME}
+
+#e.g. p1
+export COMPONENT_NAME=p1
+echo COMPONENT_NAME=${COMPONENT_NAME}
+
+# e.g. djtcli99
+export ENVIRONMENT_NAME=devcli01
+echo ENVIRONMENT_NAME=${ENVIRONMENT_NAME}
+
+# e.g. eastus
+export LOCATION=eastus
+echo LOCATION=${LOCATION}
+
+# e.g. gates-p1-djt1-eastus
+export INFIX=${PLATFORM_NAME}-${COMPONENT_NAME}-${ENVIRONMENT_NAME}-${LOCATION}
+echo INFIX=${INFIX}
+
+# e.g. gatesp1djt1eastus
+export INFIX_NO_SEPARATORS=${PLATFORM_NAME}${COMPONENT_NAME}${ENVIRONMENT_NAME}${LOCATION}
+echo INFIX_NO_SEPARATORS=${INFIX_NO_SEPARATORS}
+
+# e.g. 172.16.128.0/18
+export ADDRESS_PREFIXES=172.16.128.0/18
+echo ADDRESS_PREFIXES=${ADDRESS_PREFIXES}
+
+# e.g. aks-gates-p1-djt1-eastus
+export AKS_CLUSTER_NAME=aks-${INFIX}
+echo AKS_CLUSTER_NAME=${AKS_CLUSTER_NAME}
+
+# e.g. monitoring
+export AKS_CLUSTER_ADDONS=monitoring
+echo AKS_CLUSTER_ADDONS=${AKS_CLUSTER_ADDONS}
+
+# e.g. bs-gates-p1-djt1-eastus
+export BOOT_SERVER_NAME=bs-${INFIX}
+echo BOOT_SERVER_NAME=${BOOT_SERVER_NAME}
+
+# e.g. bs-gates-p1-djt1-eastus
+export DATA_DISK_NAME=${BOOT_SERVER_NAME}
+echo DATA_DISK_NAME=${DATA_DISK_NAME}
+
+# e.g. (get unwrapKey wrapKey)
+#export DISK_ENCRYPTION_SET_KEY_PERMISSIONS=get unwrapKey wrapKey
+#echo DISK_ENCRYPTION_SET_KEY_PERMISSIONS=${DISK_ENCRYPTION_SET_KEY_PERMISSIONS}
+
+# e.g. des-gates-p1-djt1-eastus
+export DISK_ENCRYPTION_SET_NAME=des-${INFIX}
+echo DISK_ENCRYPTION_SET_NAME=${DISK_ENCRYPTION_SET_NAME}
+
+# e.g. key-gates-p1-djt1-eastus
+export KEY_NAME=key-${INFIX}
+echo KEY_NAME=${KEY_NAME}
+
+# e.g. UbuntuLTS
+export LINUX_IMAGE=UbuntuLTS
+echo LINUX_IMAGE=${LINUX_IMAGE}
+
+# e.g. 3 
+export NODE_COUNT=3
+echo NODE_COUNT=${NODE_COUNT}
+
+# e.g.
+export POSTGRES_ADMIN_USER=pgadmin
+echo POSTGRES_ADMIN_USER=${POSTGRES_ADMIN_USER}
+
+# e.g.
+export POSTGRES_ADMIN_PASSWORD=pgpassword12!@
+echo POSTGRES_ADMIN_PASSWORD=${POSTGRES_ADMIN_PASSWORD}
+
+# Not In Use
+## e.g. pg-gates-p1-djt1-eastus/add
+#export POSTGRES_KEY_NAME=${POSTGRES_SERVER_NAME}/add
+#echo POSTGRES_KEY_NAME=${POSTGRES_KEY_NAME}
+
+# e.g. (get unwrapKey wrapKey)
+#export POSTGRES_KEY_PERMISSIONS=get unwrapKey wrapKey
+#echo POSTGRES_KEY_PERMISSIONS=${POSTGRES_KEY_PERMISSIONS}
+
+# e.g. pg-gates-p1-djt1-eastus
+export POSTGRES_SERVER_NAME=pg-${INFIX}
+echo POSTGRES_SERVER_NAME=${POSTGRES_SERVER_NAME}
+
+# e.g. GP_Gen5_4
+export POSTGRES_SERVER_SKU_NAME=GP_Gen5_4
+echo POSTGRES_SERVER_SKU_NAME=$POSTGRES_SERVER_SKU_NAME
+
+# e.g. 102400
+export POSTGRES_SERVER_STORAGE_SIZE=102400
+echo POSTGRES_SERVER_STORAGE_SIZE=${POSTGRES_SERVER_STORAGE_SIZE}
+
+# e.g. 10
+export POSTGRES_VERSION=10
+echo POSTGRES_VERSION=${POSTGRES_VERSION}
+
+# e.g. p1registry
+export REGISTRY_NAME=${ENVIRONMENT_NAME}registry
+echo REGISTRY_NAME=${REGISTRY_NAME}
+
+# e.g. Standard
+export REGISTRY_SKU=Standard
+echo REGISTRY_SKU=${REGISTRY_SKU}
+
+# e.g. rg-gates-p1-djt1-eastus
+export RESOURCE_GROUP_NAME=rg-${INFIX}
+echo RESOURCE_GROUP_NAME=${RESOURCE_GROUP_NAME}
+
+# e.g. Microsoft.KeyVault Microsoft.Storage Microsoft.ContainerRegistry
+#export SERVICE_ENDPOINTS='Microsoft.KeyVault' 'Microsoft.Storage' 'Microsoft.ContainerRegistry'
+export SERVICE_ENDPOINTS=(Microsoft.KeyVault Microsoft.Storage Microsoft.ContainerRegistry)
+echo SERVICE_ENDPOINTS=${SERVICE_ENDPOINTS}
+
+# e.g. sagatesp1djt1eastus
+export STORAGE_ACCOUNT_NAME=sa${INFIX_NO_SEPARATORS}
+echo STORAGE_ACCOUNT_NAME=${STORAGE_ACCOUNT_NAME}
+
+# e.g. AKS
+export SUBNET_NAME=AKS
+echo SUBNET_NAME=${SUBNET_NAME}
+
+# e.g. (decrypt encrypt unwrapKey wrapKey verify sign get list update create import delete backup restore recover purge)
+#export USER_KEY_PERMISSIONS=(decrypt encrypt unwrapKey wrapKey verify sign get list update create import delete backup restore recover purge)
+#echo USER_KEY_PERMISSIONS=$USER_KEY_PERMISSIONS
+
+# e.g. kvgatesp1djt1eastus
+export VAULT_NAME=kv${INFIX_NO_SEPARATORS}
+echo VAULT_NAME=${VAULT_NAME}
+
+# e.g. kvgatesp1djt1eastus/add
+export VAULT_POLICY_NAME=${VAULT_NAME}/add
+echo VAULT_POLICY_NAME=${VAULT_POLICY_NAME}
+
+# e.g. vnet-gates-p1-djt1-eastus
+export VIRTUAL_NETWORK_NAME=vnet-${INFIX}
+echo VIRTUAL_NETWORK_NAME=${VIRTUAL_NETWORK_NAME}
+
+# e.g. azureuser
+export VIRTUAL_MACHINE_ADMIN=azureuser
+echo VIRTUAL_MACHINE_ADMIN=${VIRTUAL_MACHINE_ADMIN}
+
+# e.g. 512
+export VIRTUAL_MACHINE_DISK_SIZE=512
+echo VIRTUAL_MACHINE_DISK_SIZE=${VIRTUAL_MACHINE_DISK_SIZE}
+
+# e.g. 
+HOME_DIR=/home/${VIRTUAL_MACHINE_ADMIN}
+echo HOME_DIR=${HOME_DIR}
+
+BIGBANG_VERSION=1.12.0
+echo BIGBANG_VERSION=${BIGBANG_VERSION}
+
+FLUX_VERSION=0.7.7
+echo FLUX_VERSION=${FLUX_VERSION}
+
+HELM_VERSION=3.6.3
+echo HELM_VERSION=${HELM_VERSION}
+
+KUSTOMIZE_VERSION=4.1.2
+echo KUSTOMIZE_VERSION=${KUSTOMIZE_VERSION}
+
+SOPS_VERSION=3.7.1
+echo SOPS_VERSION=${SOPS_VERSION}
+
+DEPLOYMENT_NAME=deployment1
+echo DEPLOYMENT_NAME=${DEPLOYMENT_NAME}
+
+DEPLOYMENT_DIR=${HOME_DIR}/deployments/${DEPLOYMENT_NAME}/
+echo DEPLOYMENT_DIR=${DEPLOYMENT_DIR}
+
+DOWNLOADS_DIR=${DEPLOYMENT_DIR}/downloads/
+echo DOWNLOADS_DIR=${DOWNLOADS_DIR}
+
+BIGBANG_APPS_DIR=${DEPLOYMENT_DIR}/bigbang/
+echo BIGBANG_APPS_DIR=${BIGBANG_APPS_DIR}
+
+#BIGBANG_TEMPLATE_DIR=${DEPLOYMENT_DIR}/template/
+#echo BIGBANG_TEMPLATE_DIR=${BIGBANG_TEMPLATE_DIR}
+
+#DOCKER_RPMS_DIR=${DOWNLOADS_DIR}/docker-rpms
+#echo DOCKER_RPMS_DIR=${DOCKER_RPMS_DIR}
+
+IMAGES_DIR=${DEPLOYMENT_DIR}/images/
+echo IMAGES_DIR=${IMAGES_DIR}
+
+WORK_DIR=${HOME_DIR}/work
+echo WORK_DIR=${WORK_DIR}
+
+DEV_DIR=${WORK_DIR}/dev
+echo DEV_DIR=${DEV_DIR}
+
+PROD_DIR=${WORK_DIR}/prod
+echo PROD_DIR=${PROD_DIR}
